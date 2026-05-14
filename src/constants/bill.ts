@@ -2,7 +2,10 @@ import type { BillCategory, BillStatus } from "@/src/types/bill";
 
 export const BILL_CARD_HEIGHT = 76;
 
-export const STATUS_CONFIG: Record<BillStatus, { label: string; bgClass: string; textClass: string }> = {
+export const STATUS_CONFIG: Record<
+  BillStatus,
+  { label: string; bgClass: string; textClass: string }
+> = {
   unpaid: {
     label: "Belum Bayar",
     bgClass: "bg-amber-100",

@@ -1,3 +1,15 @@
+import { Box } from "@/components/ui/box";
+import { HStack } from "@/components/ui/hstack";
+import { Pressable } from "@/components/ui/pressable";
+import { Text } from "@/components/ui/text";
+import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import {
+  CalendarDays,
+  ChartBar,
+  House,
+  Settings,
+  type LucideIcon,
+} from "lucide-react-native";
 import { memo, useCallback, useEffect } from "react";
 import { Platform, StyleSheet } from "react-native";
 import Animated, {
@@ -7,18 +19,6 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import {
-  CalendarDays,
-  ChartBar,
-  House,
-  Settings,
-  type LucideIcon,
-} from "lucide-react-native";
-import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
-import { Pressable } from "@/components/ui/pressable";
-import { Text } from "@/components/ui/text";
 
 type TabConfig = {
   icon: LucideIcon;
@@ -26,10 +26,10 @@ type TabConfig = {
 };
 
 const TAB_CONFIG: Record<string, TabConfig> = {
-  index:     { icon: House,        label: "Home"     },
-  analytics: { icon: ChartBar,     label: "Analitik" },
-  calendar:  { icon: CalendarDays, label: "Kalender" },
-  settings:  { icon: Settings,     label: "Setelan"  },
+  index: { icon: House, label: "Home" },
+  analytics: { icon: ChartBar, label: "Analitik" },
+  calendar: { icon: CalendarDays, label: "Kalender" },
+  settings: { icon: Settings, label: "Setelan" },
 };
 
 const SPRING_CONFIG = { damping: 18, stiffness: 200, mass: 0.8 };
@@ -47,23 +47,23 @@ const TabItem = memo(function TabItem({
   accessibilityLabel,
   onPress,
 }: TabItemProps) {
-  const config    = TAB_CONFIG[routeName];
-  const Icon      = config?.icon;
-  const progress  = useSharedValue(isFocused ? 1 : 0);
-  const opacity   = useSharedValue(isFocused ? 1 : 0);
+  const config = TAB_CONFIG[routeName];
+  const Icon = config?.icon;
+  const progress = useSharedValue(isFocused ? 1 : 0);
+  const opacity = useSharedValue(isFocused ? 1 : 0);
   const iconScale = useSharedValue(1);
 
   useEffect(() => {
     progress.value = withSpring(isFocused ? 1 : 0, SPRING_CONFIG);
-    opacity.value  = withTiming(isFocused ? 1 : 0, { duration: 180 });
+    opacity.value = withTiming(isFocused ? 1 : 0, { duration: 180 });
   }, [isFocused, progress, opacity]);
 
   const pillStyle = useAnimatedStyle(() => ({
-    paddingHorizontal: withSpring(isFocused ? 16 : 12, SPRING_CONFIG),
+    paddingHorizontal: withSpring(isFocused ? 20 : 16, SPRING_CONFIG),
     backgroundColor: interpolateColor(
       progress.value,
       [0, 1],
-      ["transparent", "#ffffff"]
+      ["transparent", "#ffffff"],
     ),
     borderRadius: 999,
     paddingVertical: 10,
@@ -84,11 +84,9 @@ const TabItem = memo(function TabItem({
   }));
 
   const handlePress = useCallback(() => {
-    iconScale.value = withSpring(
-      0.75,
-      { damping: 8, stiffness: 300 },
-      () => { iconScale.value = withSpring(1, SPRING_CONFIG); }
-    );
+    iconScale.value = withSpring(0.75, { damping: 8, stiffness: 300 }, () => {
+      iconScale.value = withSpring(1, SPRING_CONFIG);
+    });
     onPress();
   }, [onPress, iconScale]);
 
