@@ -27,9 +27,9 @@ type TabConfig = {
 
 const TAB_CONFIG: Record<string, TabConfig> = {
   index: { icon: House, label: "Home" },
-  analytics: { icon: ChartBar, label: "Analitik" },
-  calendar: { icon: CalendarDays, label: "Kalender" },
-  settings: { icon: Settings, label: "Setelan" },
+  analytics: { icon: ChartBar, label: "Analytics" },
+  calendar: { icon: CalendarDays, label: "Calendar" },
+  settings: { icon: Settings, label: "Settings" },
 };
 
 const SPRING_CONFIG = { damping: 18, stiffness: 200, mass: 0.8 };

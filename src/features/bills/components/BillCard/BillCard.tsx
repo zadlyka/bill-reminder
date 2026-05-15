@@ -1,13 +1,11 @@
 // src/features/bills/components/BillCard/BillCard.tsx
 //
-// ✏️ FILE DIREFACTOR (dulunya src/features/bills/components/BillCard.tsx)
+// ✏️ FILE DIUPDATE
 //
 // Perubahan dari versi lama:
-//   - Dipecah menjadi subfolder BillCard/ dengan 5 sub-komponen
-//   - File ini menjadi thin orchestrator: terima props → teruskan ke Swipe & Content
-//   - Press animation tetap ada (scale 0.97) tapi kini via Pressable + Reanimated
-//   - Tambah props onPaid dan onDelete untuk swipe callbacks dari parent
-//   - Import BillCardContent, BillCardSwipe menggantikan semua inline UI lama
+//   - Tambah prop `isFirst` — card pertama di list mendapat showHint=true
+//   - Teruskan showHint ke BillCardSwipe untuk trigger peek animation
+//   - Press animation tetap sama (scale 0.98 → 1.0 via Pressable)
 //
 import { Pressable } from "@/components/ui/pressable";
 import { ROUTES } from "@/src/constants/navigation";
@@ -26,32 +24,39 @@ import { BillCardSwipe } from "./BillCardSwipe";
 
 interface BillCardProps {
   bill: Bill;
-  /** Dipanggil setelah animasi swipe kanan selesai */
   onPaid?: (id: string) => void;
-  /** Dipanggil setelah animasi swipe kiri selesai */
   onDelete?: (id: string) => void;
+  /** Jika true, card ini tampilkan swipe hint onboarding (hanya card pertama) */
+  isFirst?: boolean;
 }
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const PRESS_SCALE_DOWN = 0.98;
+const SPRING_PRESS_IN = { damping: 20, stiffness: 400 };
+const SPRING_PRESS_OUT = { damping: 20, stiffness: 300 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
 /**
  * BillCard — entry point publik.
  *
- * Struktur komponen:
- *   BillCard                    ← orchestrator (file ini)
- *   └── BillCardSwipe           ← gesture + swipe animation
- *       └── Pressable wrapper   ← press scale animation (0.97)
- *           └── BillCardContent ← pure UI (no logic)
+ * Struktur:
+ *   BillCard
+ *   └── BillCardSwipe     (gesture + swipe + hint animation)
+ *       └── Animated.View (press scale)
+ *           └── Pressable (tap handler)
+ *               └── BillCardContent (pure UI)
  */
 export const BillCard = memo(function BillCard({
   bill,
   onPaid,
   onDelete,
+  isFirst = false,
 }: BillCardProps) {
   const router = useRouter();
   const pressScale = useSharedValue(1);
 
-  // ── Callbacks ────────────────────────────────────────────────────────────
   const handlePaid = useCallback(() => {
     onPaid?.(bill.id);
   }, [onPaid, bill.id]);
@@ -65,14 +70,13 @@ export const BillCard = memo(function BillCard({
   }, [router, bill.id]);
 
   const handlePressIn = useCallback(() => {
-    pressScale.value = withSpring(0.97, { damping: 20, stiffness: 400 });
+    pressScale.value = withSpring(PRESS_SCALE_DOWN, SPRING_PRESS_IN);
   }, [pressScale]);
 
   const handlePressOut = useCallback(() => {
-    pressScale.value = withSpring(1, { damping: 20, stiffness: 300 });
+    pressScale.value = withSpring(1, SPRING_PRESS_OUT);
   }, [pressScale]);
 
-  // ── Press animation style ─────────────────────────────────────────────
   const pressStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pressScale.value }],
   }));
@@ -82,6 +86,7 @@ export const BillCard = memo(function BillCard({
       onPaid={handlePaid}
       onDelete={handleDelete}
       isPaid={bill.status === "paid"}
+      showHint={isFirst} // ← card pertama mendapat peek animation
     >
       <Animated.View style={pressStyle}>
         <Pressable

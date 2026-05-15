@@ -1,26 +1,22 @@
 // src/features/bills/components/BillCard/BillStatusBadge.tsx
 //
-// 🆕 FILE BARU
-// Menggabungkan dua hal dari versi lama menjadi satu komponen:
-//   1. BillUrgencyBadge.tsx (badge overdue/warning/normal berdasarkan dueDate)
-//   2. Status badge inline di BillCard.tsx (badge "Lunas" untuk status paid)
+// 🆕 NEW FILE
+// Combines two things from the previous version into one component:
+//   1. BillUrgencyBadge.tsx (overdue/warning/normal badge based on dueDate)
+//   2. Inline status badge in BillCard.tsx (the "Paid" badge)
 //
-// Sekarang cukup pakai <BillStatusBadge status={bill.status} dueDate={bill.dueDate} />
+// Now you only need to use:
+// <BillStatusBadge status={bill.status} dueDate={bill.dueDate} />
 //
-import { memo } from "react";
-import { StyleSheet, View, Text } from "react-native";
-import {
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  Timer,
-} from "lucide-react-native";
+import type { BillStatus } from "@/src/types/bill";
 import {
   getDaysRemaining,
   getUrgencyLevel,
   type UrgencyLevel,
 } from "@/src/utils/formatter";
-import type { BillStatus } from "@/src/types/bill";
+import { AlertCircle, CheckCircle2, Clock, Timer } from "lucide-react-native";
+import { memo } from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -44,7 +40,7 @@ const PAID_CONFIG: BadgeConfig = {
   text: "#059669",
   iconColor: "#059669",
   icon: CheckCircle2,
-  label: () => "Lunas",
+  label: () => "Paid",
 };
 
 const URGENCY_CONFIG: Record<UrgencyLevel, BadgeConfig> = {
@@ -53,28 +49,28 @@ const URGENCY_CONFIG: Record<UrgencyLevel, BadgeConfig> = {
     text: "#dc2626",
     iconColor: "#dc2626",
     icon: AlertCircle,
-    label: (d) => `Telat ${Math.abs(d)} hari`,
+    label: (d) => `Overdue ${Math.abs(d)} days`,
   },
   urgent: {
     bg: "rgba(239, 68, 68, 0.12)",
     text: "#dc2626",
     iconColor: "#dc2626",
     icon: Timer,
-    label: (d) => (d === 0 ? "Hari ini" : d === 1 ? "Besok" : `${d} hari lagi`),
+    label: (d) => (d === 0 ? "Today" : d === 1 ? "Tomorrow" : `${d} days left`),
   },
   warning: {
     bg: "rgba(245, 158, 11, 0.12)",
     text: "#d97706",
     iconColor: "#d97706",
     icon: Clock,
-    label: (d) => `${d} hari lagi`,
+    label: (d) => `${d} days left`,
   },
   normal: {
     bg: "rgba(16, 185, 129, 0.12)",
     text: "#059669",
     iconColor: "#059669",
     icon: CheckCircle2,
-    label: (d) => `${d} hari lagi`,
+    label: (d) => `${d} days left`,
   },
 };
 

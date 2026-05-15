@@ -3,10 +3,9 @@
 // ✏️ FILE DIUPDATE
 //
 // Perubahan dari versi lama:
-//   1. Import BillCard dari subfolder baru: "./BillCard" (bukan "./BillCard" file lama)
-//   2. Tambah props onPaid dan onDelete — diteruskan ke tiap BillCard
-//   3. renderItem kini pass onPaid dan onDelete ke BillCard
-//   4. Semua FlatList optimization (memo, useCallback, getItemLayout) tetap sama
+//   - renderItem meneruskan isFirst={index === 0} ke BillCard pertama
+//     agar swipe hint onboarding hanya muncul di card pertama
+//   - Props onPaid dan onDelete tetap ada
 //
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
@@ -15,8 +14,9 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { BILL_CARD_HEIGHT } from "@/src/constants/bill";
 import type { Bill } from "@/src/types/bill";
+import { ClipboardList } from "lucide-react-native";
 import { memo, useCallback } from "react";
-import { FlatList, type ListRenderItem } from "react-native";
+import { FlatList, type ListRenderItemInfo } from "react-native";
 import { BillCard } from "./BillCard";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -25,13 +25,13 @@ interface BillListProps {
   bills: Bill[];
   isLoading?: boolean;
   onSeeAll?: () => void;
-  onPaid?: (id: string) => void; // 🆕 callback swipe kanan
-  onDelete?: (id: string) => void; // 🆕 callback swipe kiri
+  onPaid?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const ITEM_HEIGHT = BILL_CARD_HEIGHT + 12; // card height + marginBottom
+const ITEM_HEIGHT = BILL_CARD_HEIGHT + 12;
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
@@ -58,12 +58,12 @@ const ListHeader = memo(function ListHeader({
 const EmptyState = memo(function EmptyState() {
   return (
     <VStack className="items-center gap-2 py-12">
-      <Text className="text-4xl">🎉</Text>
+      <ClipboardList className="text-4xl" />
       <Text className="font-semibold text-typography-900">
-        Semua tagihan lunas!
+        No bills due today
       </Text>
       <Text className="text-sm text-center text-typography-400">
-        Tidak ada tagihan yang perlu dibayar
+        Review outstanding and upcoming bills
       </Text>
     </VStack>
   );
@@ -73,7 +73,7 @@ const LoadingState = memo(function LoadingState() {
   return (
     <VStack className="items-center gap-2 py-10">
       <Spinner size="large" />
-      <Text className="text-sm text-typography-400">Memuat tagihan...</Text>
+      <Text className="text-sm text-typography-400">Loading bills...</Text>
     </VStack>
   );
 });
@@ -84,12 +84,18 @@ export const BillList = memo(function BillList({
   bills,
   isLoading = false,
   onSeeAll,
-  onPaid, // 🆕
-  onDelete, // 🆕
+  onPaid,
+  onDelete,
 }: BillListProps) {
-  // Sertakan onPaid dan onDelete di deps agar renderItem tidak stale
-  const renderItem = useCallback<ListRenderItem<Bill>>(
-    ({ item }) => <BillCard bill={item} onPaid={onPaid} onDelete={onDelete} />,
+  const renderItem = useCallback(
+    ({ item, index }: ListRenderItemInfo<Bill>) => (
+      <BillCard
+        bill={item}
+        onPaid={onPaid}
+        onDelete={onDelete}
+        isFirst={index === 0} // ← hanya card pertama yang dapat swipe hint
+      />
+    ),
     [onPaid, onDelete],
   );
 

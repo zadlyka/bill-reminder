@@ -1,15 +1,15 @@
 // src/utils/formatter.ts
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("id-ID", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "IDR",
+    currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
 }
 
 export function formatDate(isoDate: string): string {
-  return new Intl.DateTimeFormat("id-ID", {
+  return new Intl.DateTimeFormat("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -26,10 +26,10 @@ export function getDaysRemaining(isoDate: string): number {
 
 export function getDueLabel(isoDate: string): string {
   const days = getDaysRemaining(isoDate);
-  if (days < 0) return `Telat ${Math.abs(days)} hari`;
-  if (days === 0) return "Jatuh tempo hari ini";
-  if (days === 1) return "Jatuh tempo besok";
-  return `${days} hari lagi`;
+  if (days < 0) return `Overdue ${Math.abs(days)} days`;
+  if (days === 0) return "Due today";
+  if (days === 1) return "Due tomorrow";
+  return `${days} days left`;
 }
 
 export type UrgencyLevel = "overdue" | "urgent" | "warning" | "normal";

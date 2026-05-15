@@ -22,13 +22,13 @@ import { useCallback, useState } from "react";
 export default function HomeScreen() {
   // State lokal untuk demo swipe interaction
   // Ketika pakai React Query: ganti ini dengan useBills() + useMutation
-  const [bills, setBills] = useState<Bill[]>(MOCK_BILLS.slice(0, 3));
+  const [bills, setBills] = useState<Bill[]>(MOCK_BILLS.slice(0, 0));
 
   const handlePaid = useCallback((id: string) => {
     setBills((prev) =>
       prev.map((bill) =>
-        bill.id === id ? { ...bill, status: "paid" as const } : bill
-      )
+        bill.id === id ? { ...bill, status: "paid" as const } : bill,
+      ),
     );
   }, []);
 
